@@ -26,8 +26,8 @@ Create an inventory management system for a provision store. We can
 - Customer: id, name, email
 - Vendor: id, name, email
 - Good: id, name, description, price, quantity, categoryId, vendorId
-- IssuedGood: id, goodId, quantity, dateIssued, userId
-- Bill: id, goodId, quantity, cost, dateBilled, customerId
+- IssuedGood: id, goodId, quantity, dateIssued, customerId
+- Bill: id, goodId, quantity, price, dateBilled, customerId
 
 ## Item Category
 
