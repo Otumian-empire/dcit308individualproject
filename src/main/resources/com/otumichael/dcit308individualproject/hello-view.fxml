@@ -11,99 +11,93 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-  prefHeight="400.0" prefWidth="802.0" tabClosingPolicy="UNAVAILABLE"
-  xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="553.0" prefWidth="1110.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.otumichael.dcit308individualproject.HelloController">
   <tabs>
     <Tab text="Add good">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
             <Label layoutX="34.0" layoutY="31.0" text="Name" />
-            <TextField layoutX="101.0" layoutY="27.0" promptText="Enter item name" />
+            <TextField id="goodNameText" fx:id="goodNameText" layoutX="101.0" layoutY="27.0" promptText="Enter item name" />
             <Label layoutX="300.0" layoutY="31.0" text="Quantity" />
             <Label layoutX="34.0" layoutY="74.0" text="Price" />
-            <TextField layoutX="101.0" layoutY="70.0" promptText="Enter item price" />
+            <TextField id="goodPriceText" fx:id="goodPriceText" layoutX="101.0" layoutY="70.0" promptText="Enter item price" />
             <Label layoutX="34.0" layoutY="165.0" text="Description" />
-            <TextArea layoutX="36.0" layoutY="196.0" prefHeight="87.0" prefWidth="517.0"
-              promptText="Enter item description" />
+            <TextArea id="goodDescriptionText" fx:id="goodDescriptionText" layoutX="36.0" layoutY="196.0" prefHeight="87.0" prefWidth="517.0" promptText="Enter item description" />
             <Label layoutX="34.0" layoutY="114.0" text="Category" />
-            <ChoiceBox layoutX="101.0" layoutY="110.0" prefHeight="24.0" prefWidth="170.0" />
+            <ChoiceBox id="goodCategoryChoiceBox" fx:id="goodCategoryChoiceBox" layoutX="101.0" layoutY="110.0" prefHeight="24.0" prefWidth="170.0" />
             <Label layoutX="300.0" layoutY="114.0" text="Vendor" />
-            <ChoiceBox layoutX="383.0" layoutY="110.0" prefHeight="24.0" prefWidth="170.0" />
-            <Button layoutX="40.0" layoutY="304.0" mnemonicParsing="false" text="Clear" />
-            <Button layoutX="131.0" layoutY="304.0" mnemonicParsing="false" text="Add" />
-            <TextField layoutX="382.0" layoutY="27.0" promptText="Enter item quantity" />
+            <ChoiceBox id="goodVendorChoiceBox" fx:id="goodVendorChoiceBox" layoutX="383.0" layoutY="110.0" prefHeight="24.0" prefWidth="170.0" />
+            <Button layoutX="40.0" layoutY="304.0" mnemonicParsing="false" onAction="#onAddGoodClearButtonClick" text="Clear" />
+            <Button layoutX="307.0" layoutY="304.0" mnemonicParsing="false" onAction="#onAddGoodInsertButtonClick" text="Add" />
+            <TextField id="goodQuantityText" fx:id="goodQuantityText" layoutX="382.0" layoutY="27.0" promptText="Enter item quantity" />
           </children>
         </AnchorPane>
       </content>
     </Tab>
-    <Tab text="View goods">
+    <Tab fx:id="viewGoodsTab" text="View goods">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="1051.0">
           <children>
-            <TableView layoutX="1.0" maxHeight="1.7976931348623157E308"
-              maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="802.0">
+            <TableView fx:id="viewGoodsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="520.0" prefWidth="1110.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="75.0" text="NAME" />
-                <TableColumn prefWidth="94.0" text="QUANTITY" />
-                <TableColumn prefWidth="94.0" text="PRICE" />
-                <TableColumn prefWidth="94.0" text="CATEGORY" />
-                <TableColumn prefWidth="94.0" text="VENDOR" />
-                <TableColumn prefWidth="108.0" text="DESCRIPTION" />
+                <TableColumn fx:id="viewGoodsIdColumn" prefWidth="78.0" text="ID" />
+                <TableColumn fx:id="viewGoodsNameColumn" minWidth="0.0" prefWidth="166.0" text="NAME" />
+                <TableColumn fx:id="viewGoodsQuantityColumn" prefWidth="138.0" text="QUANTITY" />
+                <TableColumn fx:id="viewGoodsPriceColumn" minWidth="8.0" prefWidth="111.0" text="PRICE" />
+                <TableColumn fx:id="viewGoodsCategoryColumn" minWidth="0.0" prefWidth="156.0" text="CATEGORY" />
+                <TableColumn fx:id="viewGoodsVendorColumn" prefWidth="170.0" text="VENDOR" />
+                        <TableColumn fx:id="viewGoodsDescriptionColumn" prefWidth="288.0" text="DESCRIPTION" />
               </columns>
             </TableView>
           </children>
         </AnchorPane>
       </content>
     </Tab>
-    <Tab text="View bills">
+    <Tab fx:id="viewBillsTab" text="View bills">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
-            <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-              prefHeight="369.0" prefWidth="802.0">
+            <TableView fx:id="viewBillsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="522.0" prefWidth="1110.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="75.0" text="NAME" />
-                <TableColumn prefWidth="94.0" text="QUANTITY" />
-                <TableColumn prefWidth="94.0" text="PRICE" />
-                <TableColumn prefWidth="94.0" text="CUSTOMER" />
-                <TableColumn prefWidth="94.0" text="DATE" />
+                <TableColumn fx:id="viewBillsIdColumn" text="ID" />
+                <TableColumn fx:id="viewBillsNameColumn" prefWidth="162.0" text="NAME" />
+                <TableColumn fx:id="viewBillsQuantityColumn" prefWidth="114.0" text="QUANTITY" />
+                <TableColumn fx:id="viewBillsPriceColumn" prefWidth="114.0" text="PRICE" />
+                <TableColumn fx:id="viewBillsCustomerColumn" prefWidth="161.0" text="CUSTOMER" />
+                <TableColumn fx:id="viewBillsDateColumn" prefWidth="119.0" text="DATE" />
               </columns>
             </TableView>
           </children>
         </AnchorPane>
       </content>
     </Tab>
-    <Tab text="VIew issued goods">
+    <Tab fx:id="viewIssuedGoodsTab" text="VIew issued goods">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
-            <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-              prefHeight="369.0" prefWidth="802.0">
+            <TableView fx:id="viewIssuedGoodsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="524.0" prefWidth="1110.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="75.0" text="NAME" />
-                <TableColumn prefWidth="94.0" text="QUANTITY" />
-                <TableColumn prefWidth="94.0" text="CUSTOMER" />
-                <TableColumn prefWidth="94.0" text="DATE" />
+                <TableColumn fx:id="viewIssuedGoodsIdColumn" text="ID" />
+                <TableColumn fx:id="viewIssuedGoodsNameColumn" prefWidth="199.0" text="NAME" />
+                <TableColumn fx:id="viewIssuedGoodsQuantityColumn" prefWidth="99.0" text="QUANTITY" />
+                <TableColumn fx:id="viewIssuedGoodsCustomerColumn" prefWidth="200.0" text="CUSTOMER" />
+                <TableColumn fx:id="viewIssuedGoodsDateColumn" prefWidth="110.0" text="DATE" />
               </columns>
             </TableView>
           </children>
         </AnchorPane>
       </content>
     </Tab>
-    <Tab text="View Vendors">
+    <Tab fx:id="viewVendorsTab" text="View Vendors">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
-            <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-              prefHeight="369.0" prefWidth="802.0">
+            <TableView fx:id="viewVendorsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="522.0" prefWidth="1110.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="75.0" text="NAME" />
+                <TableColumn fx:id="viewVendorsIdColumn" text="ID" />
+                <TableColumn fx:id="viewVendorsNameColumn" prefWidth="299.0" text="NAME" />
+                        <TableColumn fx:id="viewVendorsEmailColumn" prefWidth="536.0" text="EMAIL" />
               </columns>
             </TableView>
           </children>
