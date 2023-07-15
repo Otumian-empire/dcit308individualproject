@@ -11,6 +11,7 @@ module com.otumichael.dcit308individualproject {
     // requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires annotations;
+    requires java.sql;
 
     opens com.otumichael.dcit308individualproject to javafx.fxml;
     exports com.otumichael.dcit308individualproject;
