@@ -109,9 +109,21 @@ public class HelloController implements Initializable {
     @FXML
     private TableColumn<VendorPresenter, String> viewVendorsEmailColumn;
 
+    // view sell goods tab (issue good)
+    @FXML
+    private Tab issueGoodTab;
+
+    @FXML
+    private ChoiceBox<String> issueGoodNameChoiceBox;
+
+    @FXML
+    private ChoiceBox<String> issueGoodQuantityChoiceBox;
+
+    @FXML
+    private ChoiceBox<String> issueGoodCustomerChoiceBox;
+
     @FXML
     protected void onAddGoodClearButtonClick(ActionEvent event) {
-        System.out.println("Clear form");
         clearAddGoodForm();
     }
 
@@ -146,6 +158,16 @@ public class HelloController implements Initializable {
         }
     }
 
+    @FXML
+    void onIssueGoodClearButtonClick(ActionEvent event) {
+        System.out.println("Clear issue good form");
+    }
+
+    @FXML
+    void onIssueGoodInsertButtonClick(ActionEvent event) {
+        System.out.println("Insert issue good");
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -161,6 +183,9 @@ public class HelloController implements Initializable {
             // view bills
             viewBills();
 
+            // load the choice box
+            loadIssueGoodQuantityAndCustomerList();
+
             // view issued goods
             viewIssuedGoods();
 
@@ -168,9 +193,51 @@ public class HelloController implements Initializable {
             viewVendor();
         } catch (Exception e) {
             System.out.println("initialize");
-            System.out.println(e);
+            System.out.println(e.getMessage());
             displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
         }
+    }
+
+    public void loadIssueGoodQuantityAndCustomerList() throws Exception {
+        GoodRepository goodRepository = new GoodRepository();
+        List<Good> goodList = goodRepository.getGoods();
+
+        CategoryRepository categoryRepository = new CategoryRepository();
+        List<Category> categoryList = categoryRepository.getCategories();
+
+        VendorRepository vendorRepository = new VendorRepository();
+        List<Vendor> vendorList = vendorRepository.getVendors();
+
+        final int CATEGORY_SIZE = categoryList.size();
+        String[] categoryValues = new String[CATEGORY_SIZE];
+
+        final int VENDOR_SIZE = vendorList.size();
+        String[] vendorValues = new String[VENDOR_SIZE];
+
+        for (int i = 0; i < CATEGORY_SIZE; i++) {
+            System.out.println(categoryList.get(i).getName());
+            categoryValues[i] = categoryList.get(i).getName();
+        }
+
+        for (int i = 0; i < VENDOR_SIZE; i++) {
+            System.out.println(vendorList.get(i).getName());
+            vendorValues[i] = vendorList.get(i).getName();
+        }
+
+        // populate the category choice box and select the first category as default
+        issueGoodNameChoiceBox.getItems().addAll(categoryValues);
+        issueGoodNameChoiceBox.getSelectionModel().select(0);
+        // goodCategoryChoiceBox.setOnAction();
+
+        // populate the vendor choice box and select the first vendor as default
+        issueGoodQuantityChoiceBox.getItems().addAll(vendorValues);
+        issueGoodQuantityChoiceBox.getSelectionModel().select(0);
+        // goodVendorChoiceBox.setOnAction();
+
+        // populate the vendor choice box and select the first vendor as default
+        issueGoodCustomerChoiceBox.getItems().addAll(vendorValues);
+        issueGoodCustomerChoiceBox.getSelectionModel().select(0);
+        // goodVendorChoiceBox.setOnAction();
     }
 
     public void loadGoodCategoryAndVendorList() throws Exception {
