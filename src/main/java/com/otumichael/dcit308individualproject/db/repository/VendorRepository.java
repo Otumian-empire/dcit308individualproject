@@ -32,21 +32,4 @@ public class VendorRepository {
 
         return vendors;
     }
-
-    public int getVendorIdByName(String name) throws SQLException {
-        String sql = "SELECT id FROM vendor where name=?;";
-        PreparedStatement statement = connection.prepareStatement(sql);
-
-        // Set the parameters of the prepared statement
-        statement.setString(1, name);
-
-        ResultSet resultSet = statement.executeQuery();
-
-        if (resultSet.next()) {
-            return resultSet.getInt("id");
-        }
-
-        resultSet.close();
-        return -1;
-    }
 }

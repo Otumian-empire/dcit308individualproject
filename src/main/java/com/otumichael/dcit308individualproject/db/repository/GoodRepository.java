@@ -38,8 +38,6 @@ public class GoodRepository {
         // Execute the prepared statement
         statement.executeUpdate();
 
-        // Close the connection
-        connection.close();
     }
 
     public List<Good> getGoods() throws SQLException {
@@ -79,11 +77,8 @@ public class GoodRepository {
 
                 goods.add(new Good(goodId, goodName, goodPrice, goodQuantity, category, vendor, goodDescription));
             }
-
         }
 
-
-        connection.close();
         return goods;
     }
 

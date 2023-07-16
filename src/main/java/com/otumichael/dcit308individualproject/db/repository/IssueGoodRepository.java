@@ -16,11 +16,6 @@ public class IssueGoodRepository {
     }
 
     public void insertIssueGood(String goodName, int quantity, String customerName) throws SQLException {
-
-        // get the id of good by name
-        // we have the quantity
-        // get the id of the customer by name
-
         String sql = "INSERT INTO `issued_good`(`goodId`, `quantity`, `customerId`) " +
                 "VALUES(( SELECT id FROM good WHERE NAME = ? LIMIT 1 )," +
                 " ?, " +
@@ -34,10 +29,7 @@ public class IssueGoodRepository {
             statement.setString(3, customerName);
 
             // Execute the prepared statement
-            int rowsAffected = statement.executeUpdate();
-
-            // Close the connection
-            connection.close();
+            statement.executeUpdate();
         }
     }
 
@@ -77,7 +69,6 @@ public class IssueGoodRepository {
             IssuedGood issuedGood = new IssuedGood(issueGoodId, good, issuedGoodQuantity, issuedGoodDate, customer);
 
             issuedGoods.add(issuedGood);
-            connection.close();
         }
 
         return issuedGoods;

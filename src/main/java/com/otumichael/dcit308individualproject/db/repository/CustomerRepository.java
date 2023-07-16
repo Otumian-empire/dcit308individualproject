@@ -32,19 +32,4 @@ public class CustomerRepository {
 
         return customers;
     }
-
-    public int getCustomerIdByName(String name) throws SQLException {
-        String sql = "SELECT id FROM customer where name=? LIMIT 1;";
-        PreparedStatement statement = connection.prepareStatement(sql);
-
-        // Set the parameters of the prepared statement
-        statement.setString(1, name);
-
-        ResultSet resultSet = statement.executeQuery();
-
-        int id = resultSet.getInt("id");
-
-        resultSet.close();
-        return id;
-    }
 }

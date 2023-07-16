@@ -31,8 +31,8 @@ public class BillRepository {
             statement.setString(4, customerName);
 
             statement.executeUpdate();
-            connection.close();
         }
+
     }
 
 
@@ -64,11 +64,8 @@ public class BillRepository {
 
                 bills.add(new Bill(billId, good, billQuantity, billPrice, billDate, customer));
             }
-
-            connection.close();
         }
 
         return bills;
     }
-
 }

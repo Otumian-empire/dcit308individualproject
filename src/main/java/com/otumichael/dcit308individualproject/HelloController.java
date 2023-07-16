@@ -149,6 +149,10 @@ public class HelloController implements Initializable {
             // view goods - populate the view groups table
             viewGoods();
 
+            // load issue goods
+            // viewIssuedGoods();
+            loadIssueGoodAndCustomerList();
+
         } catch (Exception e) {
             displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
         }
@@ -198,7 +202,8 @@ public class HelloController implements Initializable {
             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
 
             // update the goods count so that the changes will reflect
-            goodRepository.updateGoodQuantity(good.getId(), good.getQuantity() - issueGoodQuantity);
+            GoodRepository goodRepositoryUpdate = new GoodRepository();
+            goodRepositoryUpdate.updateGoodQuantity(good.getId(), good.getQuantity() - issueGoodQuantity);
 
             // insert bill record: add a payment record after the purchase
             BillRepository billRepository = new BillRepository();
@@ -219,11 +224,9 @@ public class HelloController implements Initializable {
 
             // reload view issued goods
             viewIssuedGoods();
-
         } catch (Exception e) {
-            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+            displayAlert(Alert.AlertType.WARNING, "Warning in onIssueGoodInsertButtonClick", "An error occurred", e.getMessage());
         }
-
     }
 
     @Override
@@ -242,7 +245,7 @@ public class HelloController implements Initializable {
             viewBills();
 
             // load the choice box
-            loadIssueGoodQuantityAndCustomerList();
+            loadIssueGoodAndCustomerList();
 
             // view issued goods
             viewIssuedGoods();
@@ -250,11 +253,11 @@ public class HelloController implements Initializable {
             // view vendor
             viewVendor();
         } catch (Exception e) {
-            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+            displayAlert(Alert.AlertType.WARNING, "Warning in initialize", "An error occurred", e.getMessage());
         }
     }
 
-    public void loadIssueGoodQuantityAndCustomerList() throws Exception {
+    public void loadIssueGoodAndCustomerList() throws Exception {
         GoodRepository goodRepository = new GoodRepository();
         List<Good> goodList = goodRepository.getGoods();
 
@@ -419,6 +422,4 @@ public class HelloController implements Initializable {
 
         return result.get() == yesButton;
     }
-
-
 }

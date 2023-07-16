@@ -41,11 +41,11 @@ public class CategoryRepository {
 
         ResultSet resultSet = statement.executeQuery();
 
+        int id = -1;
         if (resultSet.next()) {
-            return resultSet.getInt("id");
+            id = resultSet.getInt("id");
         }
 
-        resultSet.close();
-        return -1;
+        return id;
     }
 }
