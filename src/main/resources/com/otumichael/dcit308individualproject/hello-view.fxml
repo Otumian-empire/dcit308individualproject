@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="553.0" prefWidth="1110.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.otumichael.dcit308individualproject.HelloController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="553.0" prefWidth="1110.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.otumichael.dcit308individualproject.HelloController">
   <tabs>
     <Tab text="Add good">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="522.0" prefWidth="1206.0">
           <children>
             <Label layoutX="34.0" layoutY="31.0" text="Name" />
             <TextField id="goodNameText" fx:id="goodNameText" layoutX="101.0" layoutY="27.0" promptText="Enter item name" />
@@ -37,9 +29,9 @@
     </Tab>
     <Tab fx:id="viewGoodsTab" text="View goods">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="1051.0">
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="1051.0">
           <children>
-            <TableView fx:id="viewGoodsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="520.0" prefWidth="1110.0">
+            <TableView fx:id="viewGoodsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
               <columns>
                 <TableColumn fx:id="viewGoodsIdColumn" prefWidth="78.0" text="ID" />
                 <TableColumn fx:id="viewGoodsNameColumn" minWidth="0.0" prefWidth="166.0" text="NAME" />
@@ -47,7 +39,7 @@
                 <TableColumn fx:id="viewGoodsPriceColumn" minWidth="8.0" prefWidth="111.0" text="PRICE" />
                 <TableColumn fx:id="viewGoodsCategoryColumn" minWidth="0.0" prefWidth="156.0" text="CATEGORY" />
                 <TableColumn fx:id="viewGoodsVendorColumn" prefWidth="170.0" text="VENDOR" />
-                        <TableColumn fx:id="viewGoodsDescriptionColumn" prefWidth="288.0" text="DESCRIPTION" />
+                <TableColumn fx:id="viewGoodsDescriptionColumn" prefWidth="288.0" text="DESCRIPTION" />
               </columns>
             </TableView>
           </children>
@@ -56,9 +48,9 @@
     </Tab>
     <Tab fx:id="viewBillsTab" text="View bills">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
-            <TableView fx:id="viewBillsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="522.0" prefWidth="1110.0">
+            <TableView fx:id="viewBillsTable" prefHeight="522.0" prefWidth="1110.0">
               <columns>
                 <TableColumn fx:id="viewBillsIdColumn" text="ID" />
                 <TableColumn fx:id="viewBillsNameColumn" prefWidth="162.0" text="NAME" />
@@ -74,7 +66,7 @@
     </Tab>
     <Tab fx:id="viewIssuedGoodsTab" text="VIew issued goods">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
             <TableView fx:id="viewIssuedGoodsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="524.0" prefWidth="1110.0">
               <columns>
@@ -91,13 +83,13 @@
     </Tab>
     <Tab fx:id="viewVendorsTab" text="View Vendors">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
             <TableView fx:id="viewVendorsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="522.0" prefWidth="1110.0">
               <columns>
                 <TableColumn fx:id="viewVendorsIdColumn" text="ID" />
                 <TableColumn fx:id="viewVendorsNameColumn" prefWidth="299.0" text="NAME" />
-                        <TableColumn fx:id="viewVendorsEmailColumn" prefWidth="536.0" text="EMAIL" />
+                <TableColumn fx:id="viewVendorsEmailColumn" prefWidth="536.0" text="EMAIL" />
               </columns>
             </TableView>
           </children>
