@@ -103,6 +103,45 @@ public class GoodRepository {
         }
     }
 
+    public Good getGood(String name) throws SQLException {
+        String sql = "SELECT id, price, quantity FROM good WHERE name = ? LIMIT 1; ";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int price = resultSet.getInt("price");
+                int quantity = resultSet.getInt("quantity");
+
+                Category category = new Category(-1, "");
+                Vendor vendor = new Vendor(-1, "", "");
+
+                return new Good(
+                        id,
+                        "",
+                        price,
+                        quantity,
+                        category,
+                        vendor,
+                        ""
+                );
+            }
+        }
+
+        throw new SQLException("There is no item with such name");
+    }
+
     // update goods and create a new issued goods
+    public void updateGoodQuantity(int id, int newQuantity) throws SQLException {
+        String sql = "UPDATE `good` SET `quantity`= ? WHERE `id`=?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, newQuantity);
+            statement.setInt(2, id);
+            statement.executeUpdate();
+        }
+    }
 
 }

@@ -17,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
@@ -166,8 +167,34 @@ public class HelloController implements Initializable {
             int issueGoodQuantity = Integer.parseInt(issueGoodQuantityText.getText());
             String issueGoodCustomer = issueGoodCustomerChoiceBox.getSelectionModel().getSelectedItem();
 
+            // get the good and check the quantity and price
+            GoodRepository goodRepository = new GoodRepository();
+            Good good = goodRepository.getGood(issueGoodName);
+
+            int goodQuantity = Math.abs(issueGoodQuantity);
+
+            if (goodQuantity == 0 || goodQuantity > good.getQuantity()) {
+                String headerText = "There are only " + good.getQuantity() + " " + issueGoodName + "(s)";
+                String contentText = "We can not serve you more than necessary";
+                displayAlert(Alert.AlertType.WARNING, "Warning", headerText, contentText);
+                return;
+            }
+
+
+            int cost = good.getPrice() * issueGoodQuantity;
+            String message = "You are buying " + issueGoodQuantity + " " + issueGoodName + "(s) at GHS " + cost;
+
+            boolean hasConfirmed = confirmPurchase(message);
+
+            if (!hasConfirmed) {
+                return;
+            }
+
             IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
+
+            // update the goods count
+            goodRepository.updateGoodQuantity(good.getId(), good.getQuantity() - issueGoodQuantity);
 
             // TODO: insert bill record
 
@@ -367,4 +394,22 @@ public class HelloController implements Initializable {
         alert.setContentText(contextText);
         alert.showAndWait();
     }
+
+    public boolean confirmPurchase(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Are you sure you want to proceed?");
+        alert.setContentText(message + "\nThis action cannot be undone.");
+
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        return result.get() == yesButton;
+    }
+
+
 }
