@@ -1,9 +1,8 @@
 package com.otumichael.dcit308individualproject;
 
-import com.otumichael.dcit308individualproject.db.repository.CategoryRepository;
-import com.otumichael.dcit308individualproject.db.repository.GoodRepository;
-import com.otumichael.dcit308individualproject.db.repository.VendorRepository;
+import com.otumichael.dcit308individualproject.db.repository.*;
 import com.otumichael.dcit308individualproject.mapper.Category;
+import com.otumichael.dcit308individualproject.mapper.Customer;
 import com.otumichael.dcit308individualproject.mapper.Good;
 import com.otumichael.dcit308individualproject.mapper.Vendor;
 import com.otumichael.dcit308individualproject.presenter.BillPresenter;
@@ -117,7 +116,7 @@ public class HelloController implements Initializable {
     private ChoiceBox<String> issueGoodNameChoiceBox;
 
     @FXML
-    private ChoiceBox<String> issueGoodQuantityChoiceBox;
+    private TextField issueGoodQuantityText;
 
     @FXML
     private ChoiceBox<String> issueGoodCustomerChoiceBox;
@@ -160,12 +159,45 @@ public class HelloController implements Initializable {
 
     @FXML
     void onIssueGoodClearButtonClick(ActionEvent event) {
-        System.out.println("Clear issue good form");
+        clearIssueGoodForm();
     }
 
     @FXML
     void onIssueGoodInsertButtonClick(ActionEvent event) {
-        System.out.println("Insert issue good");
+        try {
+            System.out.println("Insert issue good");
+            String issueGoodName = issueGoodNameChoiceBox.getSelectionModel().getSelectedItem();
+            int issueGoodQuantity = Integer.parseInt(issueGoodQuantityText.getText());
+            String issueGoodCustomer = issueGoodCustomerChoiceBox.getSelectionModel().getSelectedItem();
+
+            System.out.print("Name: " + issueGoodName + "\t");
+            System.out.print("Quantity: " + issueGoodQuantity + "\t");
+            System.out.println("Customer: " + issueGoodCustomer );
+
+             IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
+             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
+
+             // TODO: insert bill record
+
+
+            // display success alert
+             displayAlert(Alert.AlertType.INFORMATION, "Success", "Good issued successfully", "");
+
+            // clear form after the alert is closed
+            clearIssueGoodForm();
+
+            // load the goods
+            // view goods - populate the view groups table
+             viewGoods();
+            // TODO: reload view bills
+            // TODO: reload view issued goods
+
+        } catch (Exception e) {
+            System.out.println("onIssueGoodBuyButtonClick");
+            System.out.println(e.getMessage());
+            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+        }
+
     }
 
     @Override
@@ -202,40 +234,30 @@ public class HelloController implements Initializable {
         GoodRepository goodRepository = new GoodRepository();
         List<Good> goodList = goodRepository.getGoods();
 
-        CategoryRepository categoryRepository = new CategoryRepository();
-        List<Category> categoryList = categoryRepository.getCategories();
+        final int GOOD_SIZE = goodList.size();
+        String[] goodNameValues = new String[GOOD_SIZE];
 
-        VendorRepository vendorRepository = new VendorRepository();
-        List<Vendor> vendorList = vendorRepository.getVendors();
-
-        final int CATEGORY_SIZE = categoryList.size();
-        String[] categoryValues = new String[CATEGORY_SIZE];
-
-        final int VENDOR_SIZE = vendorList.size();
-        String[] vendorValues = new String[VENDOR_SIZE];
-
-        for (int i = 0; i < CATEGORY_SIZE; i++) {
-            System.out.println(categoryList.get(i).getName());
-            categoryValues[i] = categoryList.get(i).getName();
+        for (int i = 0; i < GOOD_SIZE; i++) {
+            goodNameValues[i] = goodList.get(i).getName();
         }
 
-        for (int i = 0; i < VENDOR_SIZE; i++) {
-            System.out.println(vendorList.get(i).getName());
-            vendorValues[i] = vendorList.get(i).getName();
+        CustomerRepository customerRepository = new CustomerRepository();
+        List<Customer> customerList = customerRepository.getCustomers();
+
+        final int CUSTOMER_SIZE = customerList.size();
+        String[] customerNameValues = new String[CUSTOMER_SIZE];
+
+        for (int i = 0; i < CUSTOMER_SIZE; i++) {
+            customerNameValues[i] = customerList.get(i).getName();
         }
 
         // populate the category choice box and select the first category as default
-        issueGoodNameChoiceBox.getItems().addAll(categoryValues);
+        issueGoodNameChoiceBox.getItems().addAll(goodNameValues);
         issueGoodNameChoiceBox.getSelectionModel().select(0);
         // goodCategoryChoiceBox.setOnAction();
 
         // populate the vendor choice box and select the first vendor as default
-        issueGoodQuantityChoiceBox.getItems().addAll(vendorValues);
-        issueGoodQuantityChoiceBox.getSelectionModel().select(0);
-        // goodVendorChoiceBox.setOnAction();
-
-        // populate the vendor choice box and select the first vendor as default
-        issueGoodCustomerChoiceBox.getItems().addAll(vendorValues);
+        issueGoodCustomerChoiceBox.getItems().addAll(customerNameValues);
         issueGoodCustomerChoiceBox.getSelectionModel().select(0);
         // goodVendorChoiceBox.setOnAction();
     }
@@ -336,6 +358,14 @@ public class HelloController implements Initializable {
         goodDescriptionText.clear();
         goodCategoryChoiceBox.getSelectionModel().select(0);
         goodVendorChoiceBox.getSelectionModel().select(0);
+    }
+
+    public void clearIssueGoodForm() {
+        // clear the content
+        System.out.println("Clear form");
+        issueGoodQuantityText.clear();
+        issueGoodNameChoiceBox.getSelectionModel().select(0);
+        issueGoodCustomerChoiceBox.getSelectionModel().select(0);
     }
 
     public void displayAlert(Alert.AlertType alertType, String title, String headerText, String contextText) {

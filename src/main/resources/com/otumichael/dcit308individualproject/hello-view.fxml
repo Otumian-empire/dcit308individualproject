@@ -81,9 +81,9 @@
                   <Label layoutX="750.0" layoutY="93.0" text="Customer" />
                   <Button layoutX="381.0" layoutY="237.0" mnemonicParsing="false" onAction="#onIssueGoodClearButtonClick" text="Clear" />
                   <Button layoutX="648.0" layoutY="237.0" mnemonicParsing="false" onAction="#onIssueGoodInsertButtonClick" text="Buy" />
-                  <ChoiceBox id="goodCategoryChoiceBox" fx:id="issueGoodQuantityChoiceBox" layoutX="492.0" layoutY="89.0" prefHeight="24.0" prefWidth="170.0" />
                   <ChoiceBox id="goodCategoryChoiceBox" fx:id="issueGoodNameChoiceBox" layoutX="156.0" layoutY="89.0" prefHeight="24.0" prefWidth="170.0" />
                   <ChoiceBox id="goodCategoryChoiceBox" fx:id="issueGoodCustomerChoiceBox" layoutX="876.0" layoutY="89.0" prefHeight="24.0" prefWidth="170.0" />
+                  <TextField id="goodNameText" fx:id="issueGoodQuantityText" layoutX="470.0" layoutY="89.0" promptText="Enter item name" />
                </children>
             </AnchorPane>
          </content>
