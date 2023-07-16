@@ -163,6 +163,7 @@ public class HelloController implements Initializable {
     void onIssueGoodInsertButtonClick(ActionEvent event) {
         try {
             System.out.println("Insert issue good");
+            // get the inputs from the form
             String issueGoodName = issueGoodNameChoiceBox.getSelectionModel().getSelectedItem();
             int issueGoodQuantity = Integer.parseInt(issueGoodQuantityText.getText());
             String issueGoodCustomer = issueGoodCustomerChoiceBox.getSelectionModel().getSelectedItem();
@@ -171,6 +172,7 @@ public class HelloController implements Initializable {
             GoodRepository goodRepository = new GoodRepository();
             Good good = goodRepository.getGood(issueGoodName);
 
+            // add a guard: quantity must be > 0 and <= good's quantity in db
             int goodQuantity = Math.abs(issueGoodQuantity);
 
             if (goodQuantity == 0 || goodQuantity > good.getQuantity()) {
@@ -180,24 +182,27 @@ public class HelloController implements Initializable {
                 return;
             }
 
-
+            // calculate the cost of the transaction: item price * the quantity bought
             int cost = good.getPrice() * issueGoodQuantity;
             String message = "You are buying " + issueGoodQuantity + " " + issueGoodName + "(s) at GHS " + cost;
 
+            // user must confirm that they want to proceed with the transaction
             boolean hasConfirmed = confirmPurchase(message);
 
             if (!hasConfirmed) {
                 return;
             }
 
+            // record that this user has purchased item in some quantity
             IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
 
-            // update the goods count
+            // update the goods count so that the changes will reflect
             goodRepository.updateGoodQuantity(good.getId(), good.getQuantity() - issueGoodQuantity);
 
-            // TODO: insert bill record
-
+            // insert bill record: add a payment record after the purchase
+            BillRepository billRepository = new BillRepository();
+            billRepository.insertBill(issueGoodName, issueGoodQuantity, cost, issueGoodCustomer);
 
             // display success alert
             displayAlert(Alert.AlertType.INFORMATION, "Success", "Good issued successfully", "");
