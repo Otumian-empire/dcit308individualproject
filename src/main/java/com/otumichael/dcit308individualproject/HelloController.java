@@ -1,6 +1,11 @@
 package com.otumichael.dcit308individualproject;
 
-import com.otumichael.dcit308individualproject.mapper.*;
+import com.otumichael.dcit308individualproject.db.repository.CategoryRepository;
+import com.otumichael.dcit308individualproject.db.repository.GoodRepository;
+import com.otumichael.dcit308individualproject.db.repository.VendorRepository;
+import com.otumichael.dcit308individualproject.mapper.Category;
+import com.otumichael.dcit308individualproject.mapper.Good;
+import com.otumichael.dcit308individualproject.mapper.Vendor;
 import com.otumichael.dcit308individualproject.presenter.BillPresenter;
 import com.otumichael.dcit308individualproject.presenter.GoodPresenter;
 import com.otumichael.dcit308individualproject.presenter.IssuedGoodPresenter;
@@ -14,9 +19,15 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
+    // Observable lists
+    ObservableList<GoodPresenter> goodsObservableList;
+    ObservableList<BillPresenter> billObservableList;
+    ObservableList<IssuedGoodPresenter> issuedGoodObservableList;
+    ObservableList<VendorPresenter> vendorObservableList;
     // add view tab
     // add goods properties
     @FXML
@@ -31,8 +42,6 @@ public class HelloController implements Initializable {
     private ChoiceBox<String> goodCategoryChoiceBox;
     @FXML
     private ChoiceBox<String> goodVendorChoiceBox;
-
-
     // view goods tab
     // view goods table's properties
     @FXML
@@ -53,8 +62,6 @@ public class HelloController implements Initializable {
     private TableColumn<GoodPresenter, String> viewGoodsVendorColumn;
     @FXML
     private TableColumn<GoodPresenter, String> viewGoodsDescriptionColumn;
-
-
     // view bills tab
     // view bills table's properties
     @FXML
@@ -73,8 +80,6 @@ public class HelloController implements Initializable {
     private TableColumn<BillPresenter, String> viewBillsCustomerColumn;
     @FXML
     private TableColumn<BillPresenter, String> viewBillsDateColumn;
-
-
     // view issued goods tab
     // view issued goods table's properties
     @FXML
@@ -91,8 +96,6 @@ public class HelloController implements Initializable {
     private TableColumn<IssuedGoodPresenter, String> viewIssuedGoodsCustomerColumn;
     @FXML
     private TableColumn<IssuedGoodPresenter, String> viewIssuedGoodsDateColumn;
-
-
     // view vendor tab
     // view vendor table's properties
     @FXML
@@ -106,89 +109,91 @@ public class HelloController implements Initializable {
     @FXML
     private TableColumn<VendorPresenter, String> viewVendorsEmailColumn;
 
-
-    // Observable lists
-    ObservableList<GoodPresenter> goodsObservableList;
-    ObservableList<BillPresenter> billObservableList;
-    ObservableList<IssuedGoodPresenter> issuedGoodObservableList;
-    ObservableList<VendorPresenter> vendorObservableList;
-
-
-    Data data = new Data();
-
-
     @FXML
     protected void onAddGoodClearButtonClick(ActionEvent event) {
         System.out.println("Clear form");
-        goodNameText.clear();
-        goodPriceText.clear();
-        goodQuantityText.clear();
-        goodDescriptionText.clear();
-        // goodCategoryChoiceBox.getSelectionModel().clearSelection();
-        // goodVendorChoiceBox.getSelectionModel().clearSelection();
-        goodCategoryChoiceBox.getSelectionModel().select(0);
-        goodVendorChoiceBox.getSelectionModel().select(0);
+        clearAddGoodForm();
     }
 
     @FXML
     protected void onAddGoodInsertButtonClick(ActionEvent event) {
-        System.out.println("Insert form");
-        String goodName = goodNameText.getText();
-        String goodPrice = goodPriceText.getText();
-        String goodQuantity = goodQuantityText.getText();
-        String goodDescription = goodDescriptionText.getText();
-        int goodCategoryIndex = goodCategoryChoiceBox.getSelectionModel().getSelectedIndex();
-        int goodVendorIndex = goodVendorChoiceBox.getSelectionModel().getSelectedIndex();
+        try {
+            System.out.println("Insert form");
+            String goodName = goodNameText.getText();
+            int goodPrice = Integer.parseInt(goodPriceText.getText());
+            int goodQuantity = Integer.parseInt(goodQuantityText.getText());
+            String goodDescription = goodDescriptionText.getText();
+            String goodCategoryName = goodCategoryChoiceBox.getSelectionModel().getSelectedItem();
+            String goodVendorName = goodVendorChoiceBox.getSelectionModel().getSelectedItem();
 
-        System.out.println("goodName: " + goodName);
-        System.out.println("goodPrice: " + goodPrice);
-        System.out.println("goodQuantity: " + goodQuantity);
-        System.out.println("goodDescription: " + goodDescription);
-        System.out.println(goodCategoryChoiceBox.getSelectionModel().getSelectedItem());
-        System.out.println(goodVendorChoiceBox.getSelectionModel().getSelectedItem());
+            GoodRepository goodRepository = new GoodRepository();
+            goodRepository.insertGood(goodName, goodPrice, goodQuantity, goodCategoryName, goodVendorName, goodDescription);
 
-        int nextGoodId = data.getGoods().size() + 1;
-        data.getGoods().add(new Good(nextGoodId,
-                goodName,
-                Integer.parseInt(goodPrice),
-                Integer.parseInt(goodQuantity),
-                data.getCategories().get(goodCategoryIndex),
-                data.getVendors().get(goodVendorIndex),
-                goodDescription));
+            // display success alert
+            displayAlert(Alert.AlertType.INFORMATION, "Success", "Good added", "");
 
-        System.out.println(data.getGoods().toString());
+            // clear form after the alert is closed
+            clearAddGoodForm();
+
+            // load the goods
+            // view goods - populate the view groups table
+            viewGoods();
+
+        } catch (Exception e) {
+            System.out.println("onAddGoodInsertButtonClick");
+            System.out.println(e.getMessage());
+            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // constants
-        final int CATEGORY_SIZE = 11;
-        final int VENDOR_SIZE = 3;
+        try {
+            // load data for presentation
 
-        // load data for presentation
-        GoodPresenter[] goodPresenters = PresenterUtil.getPresentedGoods(data.getGoods().size(), data.getGoods());
-        goodsObservableList = FXCollections.observableArrayList(goodPresenters);
+            // add good
+            // get the values of the categories
+            loadGoodCategoryAndVendorList();
 
-        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(data.getBills().size(), data.getBills());
-        billObservableList = FXCollections.observableArrayList(billPresenters);
+            // view goods - populate the view groups table
+            viewGoods();
 
-        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(data.getIssuedGoods().size(), data.getIssuedGoods());
-        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
+            // view bills
+            viewBills();
 
-        VendorPresenter[] vendorPresenters = PresenterUtil.getPresentedVendors(data.getVendors().size(), data.getVendors());
-        vendorObservableList = FXCollections.observableArrayList(vendorPresenters);
+            // view issued goods
+            viewIssuedGoods();
 
-        // add good
-        // get the values of the categories
+            // view vendor
+            viewVendor();
+        } catch (Exception e) {
+            System.out.println("initialize");
+            System.out.println(e);
+            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+        }
+    }
+
+    public void loadGoodCategoryAndVendorList() throws Exception {
+        CategoryRepository categoryRepository = new CategoryRepository();
+        List<Category> categoryList = categoryRepository.getCategories();
+
+        VendorRepository vendorRepository = new VendorRepository();
+        List<Vendor> vendorList = vendorRepository.getVendors();
+
+        final int CATEGORY_SIZE = categoryList.size();
         String[] categoryValues = new String[CATEGORY_SIZE];
+
+        final int VENDOR_SIZE = vendorList.size();
+        String[] vendorValues = new String[VENDOR_SIZE];
+
         for (int i = 0; i < CATEGORY_SIZE; i++) {
-            categoryValues[i] = data.getCategories().get(i).getName();
+            System.out.println(categoryList.get(i).getName());
+            categoryValues[i] = categoryList.get(i).getName();
         }
 
-        // get the values of the vendors
-        String[] vendorValues = new String[VENDOR_SIZE];
         for (int i = 0; i < VENDOR_SIZE; i++) {
-            vendorValues[i] = data.getVendors().get(i).getName();
+            System.out.println(vendorList.get(i).getName());
+            vendorValues[i] = vendorList.get(i).getName();
         }
 
         // populate the category choice box and select the first category as default
@@ -200,8 +205,14 @@ public class HelloController implements Initializable {
         goodVendorChoiceBox.getItems().addAll(vendorValues);
         goodVendorChoiceBox.getSelectionModel().select(0);
         // goodVendorChoiceBox.setOnAction();
+    }
 
-        // view goods - populate the view groups table
+    private void viewGoods() throws Exception {
+        GoodRepository goodRepository = new GoodRepository();
+        List<Good> goodArrayList = goodRepository.getGoods();
+        GoodPresenter[] goodPresenters = PresenterUtil.getPresentedGoods(goodArrayList.size(), goodArrayList);
+        goodsObservableList = FXCollections.observableArrayList(goodPresenters);
+
         viewGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, Integer>("id"));
         viewGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("name"));
         viewGoodsPriceColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("price"));
@@ -210,28 +221,62 @@ public class HelloController implements Initializable {
         viewGoodsVendorColumn.setCellValueFactory((new PropertyValueFactory<GoodPresenter, String>("vendorName")));
         viewGoodsDescriptionColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("description"));
         viewGoodsTable.setItems(goodsObservableList);
+    }
 
-        // view bills
-        viewBillsIdColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("id"));
-        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
-        viewBillsQuantityColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("quantity"));
-        viewBillsPriceColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("price"));
-        viewBillsDateColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("dateBilled"));
-        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
-        viewBillsTable.setItems(billObservableList);
+    public void viewBills() {
+//        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(data.getBills().size(), data.getBills());
+//        billObservableList = FXCollections.observableArrayList(billPresenters);
+//
+//        viewBillsIdColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("id"));
+//        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
+//        viewBillsQuantityColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("quantity"));
+//        viewBillsPriceColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("price"));
+//        viewBillsDateColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("dateBilled"));
+//        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
+//        viewBillsTable.setItems(billObservableList);
+    }
 
-        // view issued goods
-        viewIssuedGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("id"));
-        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("good.name"));
-        viewIssuedGoodsQuantityColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("quantity"));
-        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customer"));
-        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateBilled"));
-        viewIssuedGoodsTable.setItems(issuedGoodObservableList);
+    public void viewIssuedGoods() {
+//        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(data.getIssuedGoods().size(), data.getIssuedGoods());
+//        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
+//
+//        viewIssuedGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("id"));
+//        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("good.name"));
+//        viewIssuedGoodsQuantityColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("quantity"));
+//        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customer"));
+//        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateBilled"));
+//        viewIssuedGoodsTable.setItems(issuedGoodObservableList);
+    }
 
-        // view vendor
+    public void viewVendor() throws Exception {
+        VendorRepository vendorRepository = new VendorRepository();
+        List<Vendor> vendorArrayList = vendorRepository.getVendors();
+        VendorPresenter[] vendorPresenters = PresenterUtil.getPresentedVendors(vendorArrayList.size(), vendorArrayList);
+        vendorObservableList = FXCollections.observableArrayList(vendorPresenters);
+
         viewVendorsIdColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, Integer>("id"));
         viewVendorsNameColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, String>("name"));
         viewVendorsEmailColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, String>("email"));
         viewVendorsTable.setItems(vendorObservableList);
+    }
+
+    public void clearAddGoodForm() {
+        // clear the content
+        System.out.println("Clear form");
+        goodNameText.clear();
+        goodPriceText.clear();
+        goodQuantityText.clear();
+        goodDescriptionText.clear();
+        goodCategoryChoiceBox.getSelectionModel().select(0);
+        goodVendorChoiceBox.getSelectionModel().select(0);
+    }
+
+    public void displayAlert(Alert.AlertType alertType, String title, String headerText, String contextText) {
+        System.out.println("display alert of type: " + alertType);
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contextText);
+        alert.showAndWait();
     }
 }
