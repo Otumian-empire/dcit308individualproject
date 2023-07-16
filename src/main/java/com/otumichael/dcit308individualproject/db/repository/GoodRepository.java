@@ -17,17 +17,12 @@ public class GoodRepository {
     }
 
     public void insertGood(String name, int price, int quantity, String categoryName, String vendorName, String description) throws SQLException {
-        CategoryRepository categoryRepository = new CategoryRepository();
-        int categoryId = categoryRepository.getCategoryIdByName(categoryName);
 
-        VendorRepository vendorRepository = new VendorRepository();
-        int vendorId = vendorRepository.getVendorIdByName(vendorName);
+        if (this.isExistingGood(name)) {
+            throw new SQLException("It seems a item with the same name already exist");
+        }
 
-        // INSERT INTO `good`(`id`, `name`, `quantity`, `price`, `categoryId`, `vendorId`, `description`)
-        // VALUES ('[value-1]','[value-2]','[value-3]','[value-4]','[value-5]','[value-6]','[value-7]')
-
-        String sql = "INSERT INTO good (name, price, quantity, categoryId, vendorId, description) ";
-        sql += "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO good(`name`, `price`, `quantity`, `categoryId`, `vendorId`, `description`) " + "VALUES(" + "   ?, ?, ?, " + "   (SELECT `id` FROM `category` WHERE `name` = ? LIMIT 1), " + "   (SELECT `id` FROM `vendor` WHERE `name` = ? LIMIT 1), " + "   ?" + ");";
 
         // Create a prepared statement
         PreparedStatement statement = connection.prepareStatement(sql);
@@ -36,18 +31,15 @@ public class GoodRepository {
         statement.setString(1, name);
         statement.setInt(2, price);
         statement.setInt(3, quantity);
-        statement.setInt(4, categoryId);
-        statement.setInt(5, vendorId);
+        statement.setString(4, categoryName);
+        statement.setString(5, vendorName);
         statement.setString(6, description);
 
         // Execute the prepared statement
-        int rowsAffected = statement.executeUpdate();
+        statement.executeUpdate();
 
         // Close the connection
         connection.close();
-
-        // Print the number of rows affected
-        System.out.println("Rows affected: " + rowsAffected);
     }
 
     public List<Good> getGoods() throws SQLException {
@@ -65,32 +57,50 @@ public class GoodRepository {
         sql += "INNER JOIN category ON good.categoryId = category.id ";
         sql += "INNER JOIN vendor ON good.vendorId = vendor.id ORDER BY good.id;";
 
-        ResultSet resultSet = statement.executeQuery(sql);
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                // get category
+                int categoryId = resultSet.getInt("categoryId");
+                String categoryName = resultSet.getString("categoryName");
 
-        while (resultSet.next()) {
-            // get category
-            int categoryId = resultSet.getInt("categoryId");
-            String categoryName = resultSet.getString("categoryName");
+                // get vendor
+                int vendorId = resultSet.getInt("vendorId");
+                String vendorName = resultSet.getString("vendorName");
+                String vendorEmail = resultSet.getString("vendorEmail");
 
-            // get vendor
-            int vendorId = resultSet.getInt("vendorId");
-            String vendorName = resultSet.getString("vendorName");
-            String vendorEmail = resultSet.getString("vendorEmail");
+                // get good
+                int goodId = resultSet.getInt("goodId");
+                String goodName = resultSet.getString("goodName");
+                int goodQuantity = resultSet.getInt("goodQuantity");
+                int goodPrice = resultSet.getInt("goodPrice");
+                Category category = new Category(categoryId, categoryName);
+                Vendor vendor = new Vendor(vendorId, vendorName, vendorEmail);
+                String goodDescription = resultSet.getString("goodDescription");
 
-            // get good
-            int goodId = resultSet.getInt("goodId");
-            String goodName = resultSet.getString("goodName");
-            int goodQuantity = resultSet.getInt("goodQuantity");
-            int goodPrice = resultSet.getInt("goodPrice");
-            Category category = new Category(categoryId, categoryName);
-            Vendor vendor = new Vendor(vendorId, vendorName, vendorEmail);
-            String goodDescription = resultSet.getString("goodDescription");
+                goods.add(new Good(goodId, goodName, goodPrice, goodQuantity, category, vendor, goodDescription));
+            }
 
-            goods.add(new Good(goodId, goodName, goodPrice, goodQuantity, category, vendor, goodDescription));
         }
+
 
         connection.close();
         return goods;
+    }
+
+
+    public boolean isExistingGood(String name) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(id) AS goodCount FROM good WHERE name = ?; ")) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+
+            boolean exists = false;
+            while (resultSet.next()) {
+                int count = resultSet.getInt("goodCount");
+                exists = count > 0;
+            }
+
+            return exists;
+        }
     }
 
     // update goods and create a new issued goods

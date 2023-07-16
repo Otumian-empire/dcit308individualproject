@@ -149,8 +149,6 @@ public class HelloController implements Initializable {
             viewGoods();
 
         } catch (Exception e) {
-            System.out.println("onAddGoodInsertButtonClick");
-            System.out.println(e.getMessage());
             displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
         }
     }
@@ -167,10 +165,6 @@ public class HelloController implements Initializable {
             String issueGoodName = issueGoodNameChoiceBox.getSelectionModel().getSelectedItem();
             int issueGoodQuantity = Integer.parseInt(issueGoodQuantityText.getText());
             String issueGoodCustomer = issueGoodCustomerChoiceBox.getSelectionModel().getSelectedItem();
-
-            System.out.print("Name: " + issueGoodName + "\t");
-            System.out.print("Quantity: " + issueGoodQuantity + "\t");
-            System.out.println("Customer: " + issueGoodCustomer);
 
             IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
@@ -194,8 +188,6 @@ public class HelloController implements Initializable {
             viewIssuedGoods();
 
         } catch (Exception e) {
-            System.out.println("onIssueGoodBuyButtonClick");
-            System.out.println(e.getMessage());
             displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
         }
 
@@ -225,8 +217,6 @@ public class HelloController implements Initializable {
             // view vendor
             viewVendor();
         } catch (Exception e) {
-            System.out.println("initialize");
-            System.out.println(e.getMessage());
             displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
         }
     }
@@ -277,12 +267,10 @@ public class HelloController implements Initializable {
         String[] vendorValues = new String[VENDOR_SIZE];
 
         for (int i = 0; i < CATEGORY_SIZE; i++) {
-            System.out.println(categoryList.get(i).getName());
             categoryValues[i] = categoryList.get(i).getName();
         }
 
         for (int i = 0; i < VENDOR_SIZE; i++) {
-            System.out.println(vendorList.get(i).getName());
             vendorValues[i] = vendorList.get(i).getName();
         }
 
@@ -373,7 +361,6 @@ public class HelloController implements Initializable {
     }
 
     public void displayAlert(Alert.AlertType alertType, String title, String headerText, String contextText) {
-        System.out.println("display alert of type: " + alertType);
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
