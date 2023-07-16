@@ -9,14 +9,7 @@ public class Good {
     private final Vendor vendor;
     private final String description;
 
-    public Good(
-            int id,
-            String name,
-            int price,
-            int quantity,
-            Category category,
-            Vendor vendor,
-            String description) {
+    public Good(int id, String name, int price, int quantity, Category category, Vendor vendor, String description) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -26,7 +19,7 @@ public class Good {
         this.description = description;
     }
 
-    
+
     public int getId() {
         return id;
     }

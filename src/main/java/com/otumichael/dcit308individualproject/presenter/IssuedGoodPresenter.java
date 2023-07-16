@@ -22,7 +22,7 @@ public class IssuedGoodPresenter {
         return id;
     }
 
-    public String getGoodId() {
+    public String getGoodName() {
         return goodName;
     }
 

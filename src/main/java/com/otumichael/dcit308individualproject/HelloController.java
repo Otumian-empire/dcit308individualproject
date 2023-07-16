@@ -1,10 +1,7 @@
 package com.otumichael.dcit308individualproject;
 
 import com.otumichael.dcit308individualproject.db.repository.*;
-import com.otumichael.dcit308individualproject.mapper.Category;
-import com.otumichael.dcit308individualproject.mapper.Customer;
-import com.otumichael.dcit308individualproject.mapper.Good;
-import com.otumichael.dcit308individualproject.mapper.Vendor;
+import com.otumichael.dcit308individualproject.mapper.*;
 import com.otumichael.dcit308individualproject.presenter.BillPresenter;
 import com.otumichael.dcit308individualproject.presenter.GoodPresenter;
 import com.otumichael.dcit308individualproject.presenter.IssuedGoodPresenter;
@@ -18,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -172,25 +170,28 @@ public class HelloController implements Initializable {
 
             System.out.print("Name: " + issueGoodName + "\t");
             System.out.print("Quantity: " + issueGoodQuantity + "\t");
-            System.out.println("Customer: " + issueGoodCustomer );
+            System.out.println("Customer: " + issueGoodCustomer);
 
-             IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
-             issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
+            IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
+            issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
 
-             // TODO: insert bill record
+            // TODO: insert bill record
 
 
             // display success alert
-             displayAlert(Alert.AlertType.INFORMATION, "Success", "Good issued successfully", "");
+            displayAlert(Alert.AlertType.INFORMATION, "Success", "Good issued successfully", "");
 
             // clear form after the alert is closed
             clearIssueGoodForm();
 
             // load the goods
             // view goods - populate the view groups table
-             viewGoods();
+            viewGoods();
+
             // TODO: reload view bills
-            // TODO: reload view issued goods
+
+            // reload view issued goods
+            viewIssuedGoods();
 
         } catch (Exception e) {
             System.out.println("onIssueGoodBuyButtonClick");
@@ -325,16 +326,19 @@ public class HelloController implements Initializable {
 //        viewBillsTable.setItems(billObservableList);
     }
 
-    public void viewIssuedGoods() {
-//        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(data.getIssuedGoods().size(), data.getIssuedGoods());
-//        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
-//
-//        viewIssuedGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("id"));
-//        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("good.name"));
-//        viewIssuedGoodsQuantityColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("quantity"));
-//        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customer"));
-//        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateBilled"));
-//        viewIssuedGoodsTable.setItems(issuedGoodObservableList);
+    public void viewIssuedGoods() throws SQLException {
+        IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
+        List<IssuedGood> issuedGoodList = issueGoodRepository.getIssueGoods();
+
+        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(issuedGoodList.size(), issuedGoodList);
+        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
+
+        viewIssuedGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("id"));
+        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("goodName"));
+        viewIssuedGoodsQuantityColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("quantity"));
+        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customerName"));
+        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateIssued"));
+        viewIssuedGoodsTable.setItems(issuedGoodObservableList);
     }
 
     public void viewVendor() throws Exception {
