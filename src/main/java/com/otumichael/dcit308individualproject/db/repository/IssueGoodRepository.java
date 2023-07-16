@@ -27,21 +27,18 @@ public class IssueGoodRepository {
                 "(SELECT id FROM customer WHERE NAME = ? LIMIT 1 ));";
 
         // Create a prepared statement
-        PreparedStatement statement = connection.prepareStatement(sql);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            // Set the parameters of the prepared statement
+            statement.setString(1, goodName);
+            statement.setInt(2, quantity);
+            statement.setString(3, customerName);
 
-        // Set the parameters of the prepared statement
-        statement.setString(1, goodName);
-        statement.setInt(2, quantity);
-        statement.setString(3, customerName);
+            // Execute the prepared statement
+            int rowsAffected = statement.executeUpdate();
 
-        // Execute the prepared statement
-        int rowsAffected = statement.executeUpdate();
-
-        // Close the connection
-        connection.close();
-
-        // Print the number of rows affected
-        System.out.println("Rows affected: " + rowsAffected);
+            // Close the connection
+            connection.close();
+        }
     }
 
     public List<IssuedGood> getIssueGoods() throws SQLException {
@@ -69,15 +66,9 @@ public class IssueGoodRepository {
             String goodName = resultSet.getString("goodName");
 
             // get issue good
-
             int issueGoodId = resultSet.getInt("issuedGoodId");
             int issuedGoodQuantity = resultSet.getInt("issuedGoodQuantity");
             String issuedGoodDate = resultSet.getString("issuedGoodDate");
-
-            System.out.println(goodName);
-            System.out.println(customerName);
-            System.out.println(issuedGoodDate);
-
 
             Vendor vendor = new Vendor(-1, "", "");
             Category category = new Category(-1, "");
@@ -86,9 +77,9 @@ public class IssueGoodRepository {
             IssuedGood issuedGood = new IssuedGood(issueGoodId, good, issuedGoodQuantity, issuedGoodDate, customer);
 
             issuedGoods.add(issuedGood);
+            connection.close();
         }
 
-        connection.close();
         return issuedGoods;
     }
 

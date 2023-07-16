@@ -214,7 +214,8 @@ public class HelloController implements Initializable {
             // view goods - populate the view groups table
             viewGoods();
 
-            // TODO: reload view bills
+            // reload view bills
+            viewBills();
 
             // reload view issued goods
             viewIssuedGoods();
@@ -333,17 +334,20 @@ public class HelloController implements Initializable {
         viewGoodsTable.setItems(goodsObservableList);
     }
 
-    public void viewBills() {
-//        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(data.getBills().size(), data.getBills());
-//        billObservableList = FXCollections.observableArrayList(billPresenters);
-//
-//        viewBillsIdColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("id"));
-//        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
-//        viewBillsQuantityColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("quantity"));
-//        viewBillsPriceColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("price"));
-//        viewBillsDateColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("dateBilled"));
-//        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
-//        viewBillsTable.setItems(billObservableList);
+    public void viewBills() throws Exception {
+        BillRepository billRepository = new BillRepository();
+        List<Bill> billList = billRepository.getBills();
+
+        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(billList.size(), billList);
+        billObservableList = FXCollections.observableArrayList(billPresenters);
+
+        viewBillsIdColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("id"));
+        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("goodName"));
+        viewBillsQuantityColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("quantity"));
+        viewBillsPriceColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("price"));
+        viewBillsDateColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("dateBilled"));
+        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("customerName"));
+        viewBillsTable.setItems(billObservableList);
     }
 
     public void viewIssuedGoods() throws SQLException {
