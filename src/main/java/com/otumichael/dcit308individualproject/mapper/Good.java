@@ -18,7 +18,8 @@ public class Good {
         this.vendor = vendor;
         this.description = description;
     }
-    
+
+
     public int getId() {
         return id;
     }

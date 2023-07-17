@@ -1,5 +1,6 @@
 package com.otumichael.dcit308individualproject;
 
+import com.otumichael.dcit308individualproject.db.repository.*;
 import com.otumichael.dcit308individualproject.mapper.*;
 import com.otumichael.dcit308individualproject.presenter.BillPresenter;
 import com.otumichael.dcit308individualproject.presenter.GoodPresenter;
@@ -14,9 +15,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
+    // Observable lists
+    ObservableList<GoodPresenter> goodsObservableList;
+    ObservableList<BillPresenter> billObservableList;
+    ObservableList<IssuedGoodPresenter> issuedGoodObservableList;
+    ObservableList<VendorPresenter> vendorObservableList;
     // add view tab
     // add goods properties
     @FXML
@@ -31,8 +40,6 @@ public class HelloController implements Initializable {
     private ChoiceBox<String> goodCategoryChoiceBox;
     @FXML
     private ChoiceBox<String> goodVendorChoiceBox;
-
-
     // view goods tab
     // view goods table's properties
     @FXML
@@ -53,8 +60,6 @@ public class HelloController implements Initializable {
     private TableColumn<GoodPresenter, String> viewGoodsVendorColumn;
     @FXML
     private TableColumn<GoodPresenter, String> viewGoodsDescriptionColumn;
-
-
     // view bills tab
     // view bills table's properties
     @FXML
@@ -73,8 +78,6 @@ public class HelloController implements Initializable {
     private TableColumn<BillPresenter, String> viewBillsCustomerColumn;
     @FXML
     private TableColumn<BillPresenter, String> viewBillsDateColumn;
-
-
     // view issued goods tab
     // view issued goods table's properties
     @FXML
@@ -91,8 +94,6 @@ public class HelloController implements Initializable {
     private TableColumn<IssuedGoodPresenter, String> viewIssuedGoodsCustomerColumn;
     @FXML
     private TableColumn<IssuedGoodPresenter, String> viewIssuedGoodsDateColumn;
-
-
     // view vendor tab
     // view vendor table's properties
     @FXML
@@ -106,89 +107,207 @@ public class HelloController implements Initializable {
     @FXML
     private TableColumn<VendorPresenter, String> viewVendorsEmailColumn;
 
+    // view sell goods tab (issue good)
+    @FXML
+    private Tab issueGoodTab;
 
-    // Observable lists
-    ObservableList<GoodPresenter> goodsObservableList;
-    ObservableList<BillPresenter> billObservableList;
-    ObservableList<IssuedGoodPresenter> issuedGoodObservableList;
-    ObservableList<VendorPresenter> vendorObservableList;
+    @FXML
+    private ChoiceBox<String> issueGoodNameChoiceBox;
 
+    @FXML
+    private TextField issueGoodQuantityText;
 
-    Data data = new Data();
-
+    @FXML
+    private ChoiceBox<String> issueGoodCustomerChoiceBox;
 
     @FXML
     protected void onAddGoodClearButtonClick(ActionEvent event) {
-        System.out.println("Clear form");
-        goodNameText.clear();
-        goodPriceText.clear();
-        goodQuantityText.clear();
-        goodDescriptionText.clear();
-        // goodCategoryChoiceBox.getSelectionModel().clearSelection();
-        // goodVendorChoiceBox.getSelectionModel().clearSelection();
-        goodCategoryChoiceBox.getSelectionModel().select(0);
-        goodVendorChoiceBox.getSelectionModel().select(0);
+        clearAddGoodForm();
     }
 
     @FXML
     protected void onAddGoodInsertButtonClick(ActionEvent event) {
-        System.out.println("Insert form");
-        String goodName = goodNameText.getText();
-        String goodPrice = goodPriceText.getText();
-        String goodQuantity = goodQuantityText.getText();
-        String goodDescription = goodDescriptionText.getText();
-        int goodCategoryIndex = goodCategoryChoiceBox.getSelectionModel().getSelectedIndex();
-        int goodVendorIndex = goodVendorChoiceBox.getSelectionModel().getSelectedIndex();
+        try {
+            System.out.println("Insert form");
+            String goodName = goodNameText.getText();
+            int goodPrice = Integer.parseInt(goodPriceText.getText());
+            int goodQuantity = Integer.parseInt(goodQuantityText.getText());
+            String goodDescription = goodDescriptionText.getText();
+            String goodCategoryName = goodCategoryChoiceBox.getSelectionModel().getSelectedItem();
+            String goodVendorName = goodVendorChoiceBox.getSelectionModel().getSelectedItem();
 
-        System.out.println("goodName: " + goodName);
-        System.out.println("goodPrice: " + goodPrice);
-        System.out.println("goodQuantity: " + goodQuantity);
-        System.out.println("goodDescription: " + goodDescription);
-        System.out.println(goodCategoryChoiceBox.getSelectionModel().getSelectedItem());
-        System.out.println(goodVendorChoiceBox.getSelectionModel().getSelectedItem());
+            GoodRepository goodRepository = new GoodRepository();
+            goodRepository.insertGood(goodName, goodPrice, goodQuantity, goodCategoryName, goodVendorName, goodDescription);
 
-        int nextGoodId = data.getGoods().size() + 1;
-        data.getGoods().add(new Good(nextGoodId,
-                goodName,
-                Integer.parseInt(goodPrice),
-                Integer.parseInt(goodQuantity),
-                data.getCategories().get(goodCategoryIndex),
-                data.getVendors().get(goodVendorIndex),
-                goodDescription));
+            // display success alert
+            displayAlert(Alert.AlertType.INFORMATION, "Success", "Good added", "");
 
-        System.out.println(data.getGoods().toString());
+            // clear form after the alert is closed
+            clearAddGoodForm();
+
+            // load the goods
+            // view goods - populate the view groups table
+            viewGoods();
+
+            // load issue goods
+            // viewIssuedGoods();
+            loadIssueGoodAndCustomerList();
+
+        } catch (Exception e) {
+            displayAlert(Alert.AlertType.WARNING, "Warning", "An error occurred", e.getMessage());
+        }
+    }
+
+    @FXML
+    void onIssueGoodClearButtonClick(ActionEvent event) {
+        clearIssueGoodForm();
+    }
+
+    @FXML
+    void onIssueGoodInsertButtonClick(ActionEvent event) {
+        try {
+            System.out.println("Insert issue good");
+            // get the inputs from the form
+            String issueGoodName = issueGoodNameChoiceBox.getSelectionModel().getSelectedItem();
+            int issueGoodQuantity = Integer.parseInt(issueGoodQuantityText.getText());
+            String issueGoodCustomer = issueGoodCustomerChoiceBox.getSelectionModel().getSelectedItem();
+
+            // get the good and check the quantity and price
+            GoodRepository goodRepository = new GoodRepository();
+            Good good = goodRepository.getGood(issueGoodName);
+
+            // add a guard: quantity must be > 0 and <= good's quantity in db
+            int goodQuantity = Math.abs(issueGoodQuantity);
+
+            if (goodQuantity == 0 || goodQuantity > good.getQuantity()) {
+                String headerText = "There are only " + good.getQuantity() + " " + issueGoodName + "(s)";
+                String contentText = "We can not serve you more than necessary";
+                displayAlert(Alert.AlertType.WARNING, "Warning", headerText, contentText);
+                return;
+            }
+
+            // calculate the cost of the transaction: item price * the quantity bought
+            int cost = good.getPrice() * issueGoodQuantity;
+            String message = "You are buying " + issueGoodQuantity + " " + issueGoodName + "(s) at GHS " + cost;
+
+            // user must confirm that they want to proceed with the transaction
+            boolean hasConfirmed = confirmPurchase(message);
+
+            if (!hasConfirmed) {
+                return;
+            }
+
+            // record that this user has purchased item in some quantity
+            IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
+            issueGoodRepository.insertIssueGood(issueGoodName, issueGoodQuantity, issueGoodCustomer);
+
+            // update the goods count so that the changes will reflect
+            GoodRepository goodRepositoryUpdate = new GoodRepository();
+            goodRepositoryUpdate.updateGoodQuantity(good.getId(), good.getQuantity() - issueGoodQuantity);
+
+            // insert bill record: add a payment record after the purchase
+            BillRepository billRepository = new BillRepository();
+            billRepository.insertBill(issueGoodName, issueGoodQuantity, cost, issueGoodCustomer);
+
+            // display success alert
+            displayAlert(Alert.AlertType.INFORMATION, "Success", "Good issued successfully", "");
+
+            // clear form after the alert is closed
+            clearIssueGoodForm();
+
+            // load the goods
+            // view goods - populate the view groups table
+            viewGoods();
+
+            // reload view bills
+            viewBills();
+
+            // reload view issued goods
+            viewIssuedGoods();
+        } catch (Exception e) {
+            displayAlert(Alert.AlertType.WARNING, "Warning in onIssueGoodInsertButtonClick", "An error occurred", e.getMessage());
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // constants
-        final int CATEGORY_SIZE = 11;
-        final int VENDOR_SIZE = 3;
+        try {
+            // load data for presentation
 
-        // load data for presentation
-        GoodPresenter[] goodPresenters = PresenterUtil.getPresentedGoods(data.getGoods().size(), data.getGoods());
-        goodsObservableList = FXCollections.observableArrayList(goodPresenters);
+            // add good
+            // get the values of the categories
+            loadGoodCategoryAndVendorList();
 
-        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(data.getBills().size(), data.getBills());
-        billObservableList = FXCollections.observableArrayList(billPresenters);
+            // view goods - populate the view groups table
+            viewGoods();
 
-        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(data.getIssuedGoods().size(), data.getIssuedGoods());
-        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
+            // view bills
+            viewBills();
 
-        VendorPresenter[] vendorPresenters = PresenterUtil.getPresentedVendors(data.getVendors().size(), data.getVendors());
-        vendorObservableList = FXCollections.observableArrayList(vendorPresenters);
+            // load the choice box
+            loadIssueGoodAndCustomerList();
 
-        // add good
-        // get the values of the categories
-        String[] categoryValues = new String[CATEGORY_SIZE];
-        for (int i = 0; i < CATEGORY_SIZE; i++) {
-            categoryValues[i] = data.getCategories().get(i).getName();
+            // view issued goods
+            viewIssuedGoods();
+
+            // view vendor
+            viewVendor();
+        } catch (Exception e) {
+            displayAlert(Alert.AlertType.WARNING, "Warning in initialize", "An error occurred", e.getMessage());
+        }
+    }
+
+    public void loadIssueGoodAndCustomerList() throws Exception {
+        GoodRepository goodRepository = new GoodRepository();
+        List<Good> goodList = goodRepository.getGoods();
+
+        final int GOOD_SIZE = goodList.size();
+        String[] goodNameValues = new String[GOOD_SIZE];
+
+        for (int i = 0; i < GOOD_SIZE; i++) {
+            goodNameValues[i] = goodList.get(i).getName();
         }
 
-        // get the values of the vendors
+        CustomerRepository customerRepository = new CustomerRepository();
+        List<Customer> customerList = customerRepository.getCustomers();
+
+        final int CUSTOMER_SIZE = customerList.size();
+        String[] customerNameValues = new String[CUSTOMER_SIZE];
+
+        for (int i = 0; i < CUSTOMER_SIZE; i++) {
+            customerNameValues[i] = customerList.get(i).getName();
+        }
+
+        // populate the category choice box and select the first category as default
+        issueGoodNameChoiceBox.getItems().addAll(goodNameValues);
+        issueGoodNameChoiceBox.getSelectionModel().select(0);
+        // goodCategoryChoiceBox.setOnAction();
+
+        // populate the vendor choice box and select the first vendor as default
+        issueGoodCustomerChoiceBox.getItems().addAll(customerNameValues);
+        issueGoodCustomerChoiceBox.getSelectionModel().select(0);
+        // goodVendorChoiceBox.setOnAction();
+    }
+
+    public void loadGoodCategoryAndVendorList() throws Exception {
+        CategoryRepository categoryRepository = new CategoryRepository();
+        List<Category> categoryList = categoryRepository.getCategories();
+
+        VendorRepository vendorRepository = new VendorRepository();
+        List<Vendor> vendorList = vendorRepository.getVendors();
+
+        final int CATEGORY_SIZE = categoryList.size();
+        String[] categoryValues = new String[CATEGORY_SIZE];
+
+        final int VENDOR_SIZE = vendorList.size();
         String[] vendorValues = new String[VENDOR_SIZE];
+
+        for (int i = 0; i < CATEGORY_SIZE; i++) {
+            categoryValues[i] = categoryList.get(i).getName();
+        }
+
         for (int i = 0; i < VENDOR_SIZE; i++) {
-            vendorValues[i] = data.getVendors().get(i).getName();
+            vendorValues[i] = vendorList.get(i).getName();
         }
 
         // populate the category choice box and select the first category as default
@@ -200,8 +319,14 @@ public class HelloController implements Initializable {
         goodVendorChoiceBox.getItems().addAll(vendorValues);
         goodVendorChoiceBox.getSelectionModel().select(0);
         // goodVendorChoiceBox.setOnAction();
+    }
 
-        // view goods - populate the view groups table
+    private void viewGoods() throws Exception {
+        GoodRepository goodRepository = new GoodRepository();
+        List<Good> goodArrayList = goodRepository.getGoods();
+        GoodPresenter[] goodPresenters = PresenterUtil.getPresentedGoods(goodArrayList.size(), goodArrayList);
+        goodsObservableList = FXCollections.observableArrayList(goodPresenters);
+
         viewGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, Integer>("id"));
         viewGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("name"));
         viewGoodsPriceColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("price"));
@@ -210,28 +335,91 @@ public class HelloController implements Initializable {
         viewGoodsVendorColumn.setCellValueFactory((new PropertyValueFactory<GoodPresenter, String>("vendorName")));
         viewGoodsDescriptionColumn.setCellValueFactory(new PropertyValueFactory<GoodPresenter, String>("description"));
         viewGoodsTable.setItems(goodsObservableList);
+    }
 
-        // view bills
+    public void viewBills() throws Exception {
+        BillRepository billRepository = new BillRepository();
+        List<Bill> billList = billRepository.getBills();
+
+        BillPresenter[] billPresenters = PresenterUtil.getPresentedBills(billList.size(), billList);
+        billObservableList = FXCollections.observableArrayList(billPresenters);
+
         viewBillsIdColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("id"));
-        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
+        viewBillsNameColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("goodName"));
         viewBillsQuantityColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("quantity"));
         viewBillsPriceColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, Integer>("price"));
         viewBillsDateColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("dateBilled"));
-        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("name"));
+        viewBillsCustomerColumn.setCellValueFactory(new PropertyValueFactory<BillPresenter, String>("customerName"));
         viewBillsTable.setItems(billObservableList);
+    }
 
-        // view issued goods
+    public void viewIssuedGoods() throws SQLException {
+        IssueGoodRepository issueGoodRepository = new IssueGoodRepository();
+        List<IssuedGood> issuedGoodList = issueGoodRepository.getIssueGoods();
+
+        IssuedGoodPresenter[] issuedGoodPresenters = PresenterUtil.getPresentedIssuedGoods(issuedGoodList.size(), issuedGoodList);
+        issuedGoodObservableList = FXCollections.observableArrayList(issuedGoodPresenters);
+
         viewIssuedGoodsIdColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("id"));
-        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("good.name"));
+        viewIssuedGoodsNameColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("goodName"));
         viewIssuedGoodsQuantityColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, Integer>("quantity"));
-        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customer"));
-        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateBilled"));
+        viewIssuedGoodsCustomerColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("customerName"));
+        viewIssuedGoodsDateColumn.setCellValueFactory(new PropertyValueFactory<IssuedGoodPresenter, String>("dateIssued"));
         viewIssuedGoodsTable.setItems(issuedGoodObservableList);
+    }
 
-        // view vendor
+    public void viewVendor() throws Exception {
+        VendorRepository vendorRepository = new VendorRepository();
+        List<Vendor> vendorArrayList = vendorRepository.getVendors();
+        VendorPresenter[] vendorPresenters = PresenterUtil.getPresentedVendors(vendorArrayList.size(), vendorArrayList);
+        vendorObservableList = FXCollections.observableArrayList(vendorPresenters);
+
         viewVendorsIdColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, Integer>("id"));
         viewVendorsNameColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, String>("name"));
         viewVendorsEmailColumn.setCellValueFactory(new PropertyValueFactory<VendorPresenter, String>("email"));
         viewVendorsTable.setItems(vendorObservableList);
+    }
+
+    public void clearAddGoodForm() {
+        // clear the content
+        System.out.println("Clear form");
+        goodNameText.clear();
+        goodPriceText.clear();
+        goodQuantityText.clear();
+        goodDescriptionText.clear();
+        goodCategoryChoiceBox.getSelectionModel().select(0);
+        goodVendorChoiceBox.getSelectionModel().select(0);
+    }
+
+    public void clearIssueGoodForm() {
+        // clear the content
+        System.out.println("Clear form");
+        issueGoodQuantityText.clear();
+        issueGoodNameChoiceBox.getSelectionModel().select(0);
+        issueGoodCustomerChoiceBox.getSelectionModel().select(0);
+    }
+
+    public void displayAlert(Alert.AlertType alertType, String title, String headerText, String contextText) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contextText);
+        alert.showAndWait();
+    }
+
+    public boolean confirmPurchase(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Are you sure you want to proceed?");
+        alert.setContentText(message + "\nThis action cannot be undone.");
+
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        return result.get() == yesButton;
     }
 }

@@ -3,6 +3,7 @@
 DCIT308: DATA STRUCTURES AND ALGORITHMS 2
 SECOND SEMESTER 2022/2023
 INDIVIDUAL PROJECT
+10825744
 
 ## Data structures
 
@@ -13,12 +14,12 @@ INDIVIDUAL PROJECT
 
 Create an inventory management system for a provision store. We can
 
-- add goods
-- view goods
+- add goods [x]
+- view goods [x]
 - view bills
 - issued goods (items that are sold)
 - view issued goods
-- view vendors
+- view vendors [x]
 
 ## Entities (tables)
 
